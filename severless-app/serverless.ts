@@ -1,6 +1,6 @@
 import type { AWS } from '@serverless/typescript';
-
 import hello from '@functions/hello';
+import uploadFile from '@functions/uploadFile';
 
 const serverlessConfiguration: AWS = {
   service: 'severless-app',
@@ -18,8 +18,7 @@ const serverlessConfiguration: AWS = {
       NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
     },
   },
-  // import the function via paths
-  functions: { hello },
+  functions: { hello, uploadFile },
   package: { individually: true },
   custom: {
     esbuild: {
