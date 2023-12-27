@@ -1,29 +1,13 @@
 import { NestFactory } from '@nestjs/core';
-import { Transport } from '@nestjs/microservices';
+import { MicroserviceOptions } from '@nestjs/microservices';
 import { MicroserviceModule } from './microservice.module';
-import {
-  FastifyAdapter,
-  NestFastifyApplication,
-} from '@nestjs/platform-fastify';
-import fastifyMultipart from '@fastify/multipart';
+import { grpcClientOptions } from './grpc-client.options';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestFastifyApplication>(
-    MicroserviceModule,
-    new FastifyAdapter(),
-  );
-
-  await app.register(fastifyMultipart);
-
-  app.connectMicroservice({
-    transport: Transport.GRPC,
-    options: {
-      package: 'upload',
-      protoPath: 'src/protos/upload.proto',
-    },
-  });
-
+  const app = await NestFactory.create(MicroserviceModule);
+  app.connectMicroservice<MicroserviceOptions>(grpcClientOptions);
   await app.startAllMicroservices();
-  await app.listen(3002);
+  await app.listen(3001);
+  console.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();

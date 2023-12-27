@@ -9,18 +9,31 @@ export class AppService {
   private readonly logger = new Logger(AppService.name);
 
   @GrpcMethod('FileUpload', 'UploadFile')
-  async uploadFile(data, metadata): Promise<any> {
-    const fileName = metadata.fileName;
+  async uploadFile(data: IterableIterator<any>, metadata: any): Promise<any> {
+    const fileName = metadata.fileName || 'defaultFileName';
     const filePath = path.join('uploads', fileName);
-    const stats = await pidusage(process.pid);
     const writeStream = fs.createWriteStream(filePath);
-    this.logger.log(`Memory Usage (MB): ${stats.memory / 1024 / 1024}`);
-    this.logger.log(`CPU Usage (%): ${stats.cpu}`);
-    for await (const chunk of data) {
-      this.logger.log(`Received chunk of size: ${chunk.data.length}`);
-      writeStream.write(chunk.data);
+
+    try {
+      for await (const chunk of data) {
+        this.logger.debug(`Received chunk of size: ${chunk.data.length}`);
+        writeStream.write(chunk.data);
+      }
+      const stats = await pidusage(process.pid);
+      this.logger.debug(`Memory Usage (MB): ${stats.memory / 1024 / 1024}`);
+      this.logger.debug(`CPU Usage (%): ${stats.cpu}`);
+      writeStream.end();
+      return { message: 'File uploaded successfully' };
+    } catch (error) {
+      this.logger.error('Error during file upload:', error);
+      throw error;
+    } finally {
+      writeStream.close();
     }
-    writeStream.end();
-    return { message: 'File uploaded successfully' };
+  }
+
+  @GrpcMethod('HelloService', 'SayHello')
+  sayHello(data: any): { message: string } {
+    return { message: 'Hello, World!' };
   }
 }

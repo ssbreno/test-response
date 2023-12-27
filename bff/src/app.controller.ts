@@ -1,5 +1,13 @@
-import { Controller, Get, Post, Req, UploadedFile } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { AppService } from './app.service';
+import { FastifyFileInterceptor } from './fastify-file-interceptor';
 
 @Controller()
 export class AppController {
@@ -11,19 +19,14 @@ export class AppController {
   }
 
   @Post('rest')
+  @UseInterceptors(FastifyFileInterceptor('file'))
   async uploadFile(@UploadedFile() file: any): Promise<any> {
     const filePath = await this.appService.uploadFileWithRest(file);
     return filePath;
   }
 
-  @Post('grpc')
-  async uploadFileGrpc(@UploadedFile() file: any, @Req() req): Promise<any> {
-    const filePath = await this.appService.uploadFileWithGrpc(file, req);
-    return filePath;
-  }
-
   @Post('sls')
-  async uploadFileSLS(@UploadedFile() file: any): Promise<any> {
+  async uploadFileSLS(@Body() file: any): Promise<any> {
     const filePath = await this.appService.uploadFileWithServerless(file);
     return filePath;
   }

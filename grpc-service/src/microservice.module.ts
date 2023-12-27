@@ -1,10 +1,21 @@
 import { Module } from '@nestjs/common';
 import { AppService } from './app.service';
-import { AppController } from './app.controller';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
+  imports: [
+    ClientsModule.register([
+      {
+        name: 'HELLO_PACKAGE',
+        transport: Transport.GRPC,
+        options: {
+          package: 'hello',
+          protoPath: 'src/protos/hello.proto',
+        },
+      },
+    ]),
+  ],
+  controllers: [],
   providers: [AppService],
 })
 export class MicroserviceModule {}

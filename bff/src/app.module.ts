@@ -3,9 +3,11 @@ import { AppService } from './app.service';
 import { AppController } from './app.controller';
 import { HttpModule } from '@nestjs/axios';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot(),
     HttpModule,
     ClientsModule.register([
       {

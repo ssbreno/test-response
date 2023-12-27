@@ -1,13 +1,14 @@
-// upload.handler.ts
-import { APIGatewayProxyHandler } from 'aws-lambda';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import * as util from 'util';
+import { middyfy } from '../../libs/lambda';
+import { ValidatedEventAPIGatewayProxyEvent } from '../../libs/api-gateway';
+import schema from './schema';
 
-const upload: APIGatewayProxyHandler = async (event) => {
+const upload: ValidatedEventAPIGatewayProxyEvent<typeof schema>  = async (event) => {
   try {
-    const body = JSON.parse(event.body);
+    const body = event.body;
     const buffer = Buffer.from(body.file, 'base64');
     const fileName = body.fileName || 'defaultFileName';
 
@@ -33,4 +34,4 @@ const upload: APIGatewayProxyHandler = async (event) => {
   }
 };
 
-export const handler = upload;
+export const main = middyfy(upload);
